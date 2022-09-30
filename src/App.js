@@ -1,11 +1,10 @@
 import './App.css';
 import {useGoogleOneTapLogin} from 'react-google-one-tap-login';
 import React, { useEffect } from 'react';
-import { Button, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import UnitDetail from './unitDetail';
-import CheckIn from './checkIn';
+
 
 
 function App() {
@@ -17,6 +16,7 @@ function App() {
         localStorage.setItem("credentials", credential);
       },
     },
+    onSuccess: response => console.log(response),
   });
   return (
     <div className="App">
@@ -58,6 +58,26 @@ function cancelCheckIn(link, setDirtyFlag) {
   return fetch( request ).then( (response) => {response.json(); setDirtyFlag(true); } );
 }
 
+function modifyCheckIn(link, unitNumber, checkOutDate, vehicleLicense, setDirtyFlag) {
+  console.log( "Modify : " + link);
+  const headers = new Headers();
+  headers.append('Authorization', 'Bearer ' + localStorage.getItem('credentials'));
+  headers.append('Content-Type', 'application/json');
+  const request = new Request("https://api.thesmartcellar.com" + link,
+  {
+      method: 'PUT',
+      headers: headers,
+      mode:"cors",
+      body:JSON.stringify({
+        unitNumber: unitNumber,
+        checkOutDate:checkOutDate,
+        vehicleLicense: vehicleLicense
+      })
+  });
+  
+  return fetch( request ).then( (response) => {response.json(); setDirtyFlag(true); } );
+}
+
 function UserUnitList(props){
   const [units, setUnitsValue] = React.useState([]);
   const [dirty, setDirtyFlag] = React.useState(true);
@@ -76,11 +96,7 @@ function UserUnitList(props){
           {units.map( unit => { 
             if (unit.unitStatus === 'Available' ){
               return (
-                <Stack key={unit.unitNumber} dddd>
-                  <UnitDetail unitNumber={unit.unitNumber} unitStatus={unit.unitStatus}/>
-                  <CheckIn unitNumber={unit.unitNumber} setDirtyFlag={setDirtyFlag} />
-                </Stack>
-                
+                <UnitDetail unitNumber={unit.unitNumber} unitStatus={unit.unitStatus}/>
               );}             
             else{
               
@@ -91,8 +107,11 @@ function UserUnitList(props){
                   unitStatus={unit.unitStatus} 
                   checkInDate={unit.activeCheckIn.checkInDate} 
                   checkOutDate={unit.activeCheckIn.checkOutDate} 
+                  vehicleLicense={''}
                   cancelCheckInHandler={cancelCheckIn} 
-                  cancelcheckInLink={unit.links.cancelCheckIn}
+                  modifyCheckInHandler={modifyCheckIn}
+                  cancelCheckInLink={unit.links.cancelCheckIn}
+                  modifyCheckInLink={unit.links.modifyCheckIn}
                   setDirtyFlag={setDirtyFlag} 
                 />
               );}

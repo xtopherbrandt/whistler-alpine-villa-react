@@ -4,8 +4,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import Stack from '@mui/material/Stack';
 import React from 'react';
-import { Button, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
+import moment from 'moment';
 
 function postCheckIn(unitNumber, checkInDate, checkOutDate, vehicleLicense, setDirtyFlag ){
     console.log( "Check In" );
@@ -30,7 +31,7 @@ function postCheckIn(unitNumber, checkInDate, checkOutDate, vehicleLicense, setD
   
   
 function CheckIn(props){
-    const [checkInDate, setCheckInDate] = React.useState(null);
+    const [checkInDate, setCheckInDate] = React.useState(moment());
     const [checkOutDate, setCheckOutDate] = React.useState(null);
     const [vehicleLicense, setVehicleLicense] = React.useState("");
   
@@ -41,12 +42,9 @@ function CheckIn(props){
   
   
             <DatePicker
-              required
+              readOnly
               label="Check In"
               value={checkInDate}
-              onChange={(newValue) => {
-                setCheckInDate(newValue);
-              }}
               renderInput={(params) => <TextField {...params} />}
             />
             <DatePicker
